@@ -7,8 +7,8 @@ fname <- system.file(
 dat <- read.csv(fname)
 
 dat |>
-    dplyr::count(body_site) |>
+    dplyr::count(sex) |>
     ggplot(
-        aes(reorder(body_site, -n), n)
+        aes(reorder(sex, -n), n)
     ) +
     geom_col()
