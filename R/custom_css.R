@@ -1,0 +1,42 @@
+custom_css <- "
+    .fixed-height-box {
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plot-container {
+        flex: 0 0 250px;
+    }
+
+    .table-container {
+        flex: 0 0 250px;
+        overflow-y: auto;
+    }
+
+    .controls-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .summary-table th, .summary-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .summary-table th {
+        background-color: #f5f5f5;
+    }
+
+    .checkbox-cell {
+        text-align: center;
+    }
+"

@@ -18,69 +18,43 @@ currentVars <- c(
 
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
-        shinydashboard::dashboardHeader(
-            title = "cmdMeta"
-        ),
-        shinydashboard::dashboardSidebar(
+        skin = "black",
+        title = "cmdMeta",
+        header = shinydashboard::dashboardHeader(title = "cmdMeta"),
+        sidebar = shinydashboard::dashboardSidebar(
             shinydashboard::sidebarMenu(
                 shinyWidgets::pickerInput(
                     inputId = "vars",
                     label = "Select variables",
                     choices = currentVars,
                     multiple = TRUE,
-                    options = list(`actions-box` = TRUE)
+                    options = list(
+                        `actions-box` = TRUE,
+                        `live-search` = TRUE,
+                        `selected-text-format` = "count > 1"
+                    )
                 ),
                 shinydashboard::menuItem(
-                    "Plots", tabName = "plots", icon = shiny::icon("th")
+                    text = "Plots", tabName = "plots",
+                    icon = shiny::icon("magnifying-glass-chart")
                 ),
                 shinydashboard::menuItem(
-                    "Table", tabName = "table", icon = shiny::icon("file-text")
+                    text = "Table", tabName = "table",
+                    icon = shiny::icon("table")
                 )
             )
         ),
-        shinydashboard::dashboardBody(
+        body = shinydashboard::dashboardBody(
             htmltools::tags$head(
-                htmltools::tags$style(htmltools::HTML("
-                .fixed-height-box {
-                    height: 400px;
-                    display: flex;
-                    flex-direction: column;
-                }
-                .plot-container {
-                    flex: 0 0 300px;
-                }
-                .table-container {
-                    flex: 0 0 250px;
-                    overflow-y: auto;
-                }
-                .controls-container {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                }
-                .summary-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                .summary-table th, .summary-table td {
-                    padding: 8px;
-                    text-align: left;
-                    border-bottom: 1px solid #ddd;
-                }
-                .summary-table th {
-                    background-color: #f5f5f5;
-                }
-                .checkbox-cell {
-                    text-align: center;
-                }
-            "))
+                htmltools::tags$style(
+                    htmltools::HTML(custom_css)
+                )
             ),
             shinydashboard::tabItems(
                 shinydashboard::tabItem(
                     tabName = "plots",
                     shiny::fluidRow(
-                        shiny::uiOutput("dynamic_plots")
+                        shiny::uiOutput("plots_tab")
                     )
                 ),
                 shinydashboard::tabItem(
@@ -91,7 +65,7 @@ createUI <- function() {
                             status = "info",
                             solidHeader = TRUE,
                             width = 12,
-                            DT::DTOutput("filtered_table")
+                            DT::DTOutput("table_tab")
                         )
                     )
                 )
