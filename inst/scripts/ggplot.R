@@ -1,5 +1,6 @@
 # library(ggplot2)
 library(purrr)
+library(dplyr)
 
 fname <- system.file(
     "extdata", "cMD_curated_metadata_release.csv",
@@ -15,7 +16,30 @@ dat <- read.csv(fname)
 #     geom_col()
 
 
-map_chr(dat, class)
-map_int(dat, ~ {
+classVar <- map_chr(dat, class)
+lenVar <- map_int(dat, ~ {
     length(unique(.x[!is.na(.x)]))
 })
+
+df <- data.frame(
+    names = names(dat),
+    class = unname(classVar),
+    length = unname(lenVar)
+)
+
+
+df |>
+    arrange(class, -length) |>
+    View()
+
+l <- map2(classVar, lenVar, ~ list(class = .x, length = .y))
+
+
+
+
+plotFun(dat, "body_site")
+plotFun(dat, "bmi")
+plotFun(dat, "country")
+
+
+

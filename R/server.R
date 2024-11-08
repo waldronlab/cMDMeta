@@ -96,53 +96,6 @@ server <- function(input, output, session) {
         return(dat)
     })
 
-    generate_cyl_plot <- function() {
-        data <- filtered_data()
-        if(nrow(data) == 0) {
-            p <- ggplot2::ggplot() +
-                ggplot2::theme_void() +
-                ggplot2::annotate("text", x = 0, y = 0, label = "No data available")
-            return(p)
-        }
-
-        data_summary <- data |>
-            dplyr::count(.data$body_site) |>
-            dplyr::mutate(
-                n = round(n / sum(n) * 100)
-            )
-
-        p <- data_summary |>
-            ggplot2::ggplot(
-                mapping = ggplot2::aes(
-                    x = stats::reorder(body_site, -n), y = n
-                )
-            ) +
-            ggplot2::geom_col() +
-            ggplot2::scale_y_continuous(limits = c(0, 100)) +
-            ggplot2::labs(
-                x = "Body site",
-                y = "% Samples"
-            )
-        return(p)
-    }
-
-    generate_mpg_plot <- function() {
-        data <- filtered_data()
-        if(nrow(data) == 0) {
-            emptyPlot <- ggplot2::ggplot() +
-                ggplot2::theme_void() +
-                ggplot2::annotate("text", x = 0, y = 0, label = "No data available")
-            return(emptyPlot)
-        }
-
-        ggplot2::ggplot(data, ggplot2::aes(x = bmi)) +
-            ggplot2::geom_histogram() +
-            ggplot2::labs(
-                x = "Body mass index (BMI)",
-                y = "Count"
-            )
-    }
-
     shiny::observe({
         var_list <- visible_vars()
         lapply(var_list, function(id) {
@@ -157,7 +110,6 @@ server <- function(input, output, session) {
 
     output$table_tab <- DT::renderDT({
         data <- filtered_data()
-        message(nrow(data))
         dt <- DT::datatable(
             data = data,
             options = list(
@@ -231,7 +183,11 @@ server <- function(input, output, session) {
                                     choices = sort(unique(dat$body_site)),
                                     multiple = TRUE,
                                     selected = sort(unique(dat$body_site)),
-                                    options = list(`actions-box` = TRUE)
+                                    options = list(
+                                        `actions-box` = TRUE,
+                                        `live-search` = FALSE,
+                                        `selected-text-format` = "count > 1"
+                                    )
                                 ),
                                 htmltools::div(
                                     style = "text-align: right;",
@@ -298,10 +254,10 @@ server <- function(input, output, session) {
     })
 
     output$body_site_plot <- shiny::renderPlot({
-        generate_cyl_plot()
+        plotFun(filtered_data(), "body_site")
     }, res = 80)
 
     output$mpg_plot <- shiny::renderPlot({
-        generate_mpg_plot()
-    })
+        plotFun(filtered_data(), "bmi")
+    }, res = 80)
 }
