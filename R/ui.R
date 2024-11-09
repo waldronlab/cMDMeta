@@ -1,7 +1,7 @@
 currentVars <- c(
     # "target_condition",
     # "control",
-    # "country",
+    "country",
     "body_site",
     # "westernized",
     # "age_group",
@@ -28,6 +28,7 @@ createUI <- function() {
                     label = "Select variables",
                     choices = currentVars,
                     multiple = TRUE,
+                    selected = currentVars,
                     options = list(
                         `actions-box` = TRUE,
                         `live-search` = TRUE,

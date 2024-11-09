@@ -13,11 +13,11 @@ classVar <- map_chr(dat, class)
 lenVar <- map_int(dat, ~ length(unique(.x[!is.na(.x)])))
 
 
-# df <- data.frame(
-#     names = names(dat),
-#     class = unname(classVar),
-#     len = unname(lenVar)
-# )
+df <- data.frame(
+    names = names(dat),
+    class = unname(classVar),
+    len = unname(lenVar)
+)
 
 metadataVars <- map2(classVar, lenVar, ~ {
     label <- dplyr::case_when(
@@ -28,7 +28,5 @@ metadataVars <- map2(classVar, lenVar, ~ {
 
     list(class = .x, length = .y, label = label)
 })
-
-
 
 usethis::use_data(metadataVars, overwrite = TRUE, internal = TRUE)

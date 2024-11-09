@@ -22,10 +22,11 @@ plotFun <- function(dat, varName) {
                     y = .data[["n"]]
                 )
             ) +
-            ggplot2::geom_col() +
+            ggplot2::geom_col(fill = "blue") +
             ggplot2::labs(
                 x = varName, y = "Samples"
-            )
+            ) +
+            ggplot2::theme_classic()
         return(p)
     } else if (varLab == "numeric") {
         p <- dat |>
@@ -34,7 +35,8 @@ plotFun <- function(dat, varName) {
                     x = .data[[varName]]
                 )
             ) +
-            ggplot2::geom_histogram()
+            ggplot2::geom_histogram(fill = "blue", color = "white", size = 0.1) +
+            ggplot2::theme_classic()
         return(p)
     }
 
