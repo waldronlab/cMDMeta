@@ -1,11 +1,15 @@
 Package: cmdMeta
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Dashboard for curateMetagenomicData samples
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R:
+    c(
+        person(
+            given = "Samuel", family = "Gamboa", role = c("aut", "cre"),
+            email = "samuel.gamboa.tuz@gmail.com"
+        )
+    )
+Description: 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
@@ -21,3 +25,5 @@ Imports:
     shinyWidgets,
     utils
 RoxygenNote: 7.3.2
+Depends: 
+    R (>= 2.10)
