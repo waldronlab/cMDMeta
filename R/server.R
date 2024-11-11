@@ -1,4 +1,6 @@
 server <- function(input, output, session) {
+
+    ## Data ####
     dat <- system.file(
         "extdata", "cMD_curated_metadata_release.csv",
         package = "cmdMeta", mustWork = TRUE
@@ -14,221 +16,170 @@ server <- function(input, output, session) {
             body_site = gsub(" ", "_", .data$body_site)
         )
 
-    visible_vars <- reactive({
+    visible_vars <- shiny::reactive({
         input$vars
     })
 
-    country_counts <- shiny::reactive({
-        data <- filtered_data()
-        all_countries <- unique(dat$country)
-        counts <- table(factor(data$country, levels = all_countries))
-        data.frame(
-            country = names(counts),
-            n = as.numeric(counts),
-            per = sprintf("%.1f%%", 100 * as.numeric(counts) / sum(counts))
-        ) |>
-            dplyr::arrange(-.data$n)
+    reactive_list <- shiny::reactiveValues()
+    shiny::observe({
+        visVars <- visible_vars()
+        names(visVars) <- visVars
+        reactive_list$list <- purrr::map(visVars, ~ {
+            classVar <- metadataVars[[.x]]$class
+            lenVar <- metadataVars[[.x]]$length
+            if (classVar == "character" && lenVar > 7) {
+                data <- filtered_data()
+                all_vals <- unique(dat[[.x]])
+                counts <- table(factor(data[[.x]], levels = all_vals))
+                df <- data.frame(
+                    x = names(counts),
+                    n = as.numeric(counts),
+                    per = sprintf("%.1f%%", 100 * as.numeric(counts) / sum(counts))
+                ) |>
+                    dplyr::arrange(-.data$n)
+                names(df)[1] <- .x
+                return(df)
+
+            }
+            return(NULL)
+        }) |>
+            purrr::discard(is.null)
     })
 
-    selected_classes <- shiny::reactiveVal(unique(dat$country))
 
+    # reactive_list_2 <- shiny::reactiveValues()
+    #
+    # shiny::observe({
+    #     visVars <- visible_vars()
+    #     names(visVars) <- visVars
+    #     reactive_list_2$list <- purrr::map(visVars, ~ {
+    #         classVar <- metadataVars[[.x]]$class
+    #         lenVar <- metadataVars[[.x]]$length
+    #         if (classVar == "character" && lenVar > 7) {
+    #             r <- shiny::reactiveVal(unique(dat[[.x]]))
+    #             message(paste0(.x, ">>>>>>"))
+    #             return(r)
+    #         }
+    #         return(NULL)
+    #     }) |>
+    #         purrr::discard(is.null)
+    # })
+
+    selected_country <- shiny::reactiveVal(unique(dat$country))
     shiny::observe({
         class_list <- unique(dat$country)
         lapply(class_list, function(cls) {
-            if (!is.null(input[[paste0("class_", make.names(cls))]])) {
-                shiny::observeEvent(input[[paste0("class_", make.names(cls))]], {
-                    current <- selected_classes()
-                    if (input[[paste0("class_", make.names(cls))]]) {
-                        selected_classes(unique(c(current, cls)))
+            if (!is.null(input[[paste0("class_country_", make.names(cls))]])) {
+                shiny::observeEvent(input[[paste0("class_country_", make.names(cls))]], {
+                    current <- selected_country()
+                    # current <- reactive_list_2$list[["country"]]()
+                    if (input[[paste0("class_country_", make.names(cls))]]) {
+                        selected_country(unique(c(current, cls)))
+                        # reactive_list_2$list[["country"]](unique(c(current, cls)))
                     } else {
-                        selected_classes(setdiff(current, cls))
+                        selected_country(setdiff(current, cls))
+                        # reactive_list_2$list[["country"]](setdiff(current, cls))
                     }
                 })
             }
         })
     })
 
+
+
+
+
+    ## Filter data ####
     filtered_data <- shiny::reactive({
+        data <- dat
+        for (i in input$vars) {
+            classVar <- metadataVars[[i]]$class
+            lenVar <- metadataVars[[i]]$length
 
+            if (classVar == "character" && lenVar <= 7) {
+                data <- data |>
+                    dplyr::filter(
+                        .data[[i]] %in% input[[paste0(i, "_menu")]]
+                    )
 
-        if ("body_site" %in% input$vars) {
-            dat <- dat |>
-                dplyr::filter(
-                    .data$body_site %in% input$selected_vars
-                )
-        }
+            } else if (classVar == "character" && lenVar > 7) {
+                data <- data
 
-        if ("bmi" %in% input$vars) {
-           dat <- dat |>
-               dplyr::filter(
-                    .data$bmi >= input$mpg_range[1],
-                    .data$bmi <= input$mpg_range[2]
-               )
+            } else if (classVar == "numeric" || classVar == "integer") {
+                data <- data |>
+                    dplyr::filter(
+                        .data[[i]] >= input[[paste0(i, "_range")]][1],
+                        .data[[i]] <= input[[paste0(i, "_range")]][2]
+                    )
+
+            }
+
         }
 
         if ("country" %in% input$vars) {
-            selected <- selected_classes()
+            selected <- selected_country()
+            # selected <- reactive_list_2$list[["country"]]()
             if (length(selected) > 0) {
-                dat <- dat |>
+                data <- data |>
                     dplyr::filter(
                         .data$country %in% selected
                     )
             }
         }
 
-        if (!length(input$vars) || !nrow(dat)) {
-            return(dat[0,, drop = FALSE])
+        if (!length(input$vars) || !nrow(data)) {
+            return(data[0,, drop = FALSE])
         }
-        return(dat)
+        return(data)
     })
 
+    ## Outputs in boxes ####
+    shiny::observe({
+        purrr::map(visible_vars(), ~ {
+            classVar <- metadataVars[[.x]]$class
+            lenVar <- metadataVars[[.x]]$length
+            if (classVar == "numeric" || classVar == "integer") {
+                outputName <- make.names(paste0(.x, "_plot"))
+                output[[outputName]] <- shiny::renderPlot({
+                    plotFun(filtered_data(), .x)
+                }, res = 80)
+            } else if (classVar == "character" && lenVar <= 7) {
+                outputName <- make.names(paste0(.x, "_plot"))
+                output[[outputName]] <- shiny::renderPlot({
+                    plotFun(filtered_data(), .x)
+                }, res = 80)
+            } else if (classVar == "character" && lenVar > 7) {
+                outputName <- make.names(paste0(.x, "_summary"))
+                output[[outputName]] <- shiny::renderUI({
+                    counts <- reactive_list$list[[.x]]
+                    summaryFun(.x, counts, selected_country())
+                    # summaryFun(.x, counts, reactive_list_2$list[["country"]]())
+                })
+                return(NULL)
+            }
+        }) |>
+            purrr::discard(is.null)
+    })
 
+    ## Plots ####
     output$plots_tab <- shiny::renderUI({
         var_list <- visible_vars()
-
-        if (length(var_list) == 0) return(NULL)
-
+        if (!length(var_list)) {
+            return(NULL)
+        }
         shiny::fluidRow(
-            purrr::map(var_list, function(id) {
-                if (id == "body_site") {
-                    shiny::column(
-                        width = 3,
-                        shinydashboard::box(
-                            width = NULL,
-                            title = "Body site",
-                            solidHeader = TRUE,
-                            class = "fixed-height-box",
-                            htmltools::div(class = "plot-container",
-                                           shiny::plotOutput("body_site_plot", height = "100%")
-                            ),
-                            htmltools::div(class = "controls-container",
-                                           shinyWidgets::pickerInput(
-                                               inputId = "selected_vars",
-                                               label = NULL,
-                                               choices = sort(unique(dat$body_site)),
-                                               multiple = TRUE,
-                                               selected = sort(unique(dat$body_site)),
-                                               options = list(
-                                                   `actions-box` = TRUE,
-                                                   `live-search` = FALSE,
-                                                   `selected-text-format` = "count > 1"
-                                               )
-                                           )
-                                           # htmltools::div(
-                                           #     style = "text-align: right;",
-                                           #     shiny::actionButton("remove_A", "Remove", class = "btn-danger btn-sm")
-                                           # )
-                            )
-                        )
-                    )
-                } else if (id == "bmi") {
-                    shiny::column(
-                        width = 3,
-                        shinydashboard::box(
-                            width = NULL,
-                            title = "BMI Distribution",
-                            status = NULL,
-                            solidHeader = TRUE,
-                            class = "fixed-height-box",
-                            htmltools::div(
-                                class = "plot-container",
-                                shiny::plotOutput("mpg_plot", height = "100%")
-                            ),
-                            htmltools::div(
-                                class = "controls-container",
-                                shiny::sliderInput(
-                                    inputId = "mpg_range",
-                                    label = NULL,
-                                    min = floor(min(dat$bmi)),
-                                    max = ceiling(max(dat$bmi)),
-                                    value = c(floor(min(dat$bmi)), ceiling(max(dat$bmi))),
-                                    step = 1
-                                )
-                                # htmltools::div(
-                                #     style = "text-align: right;"
-                                #     # shiny::actionButton("remove_B", "Remove", class = "btn-danger btn-sm")
-                                # )
-                            )
-                        )
-                    )
-                } else if (id == "country") {
-                    shiny::column(
-                        width = 3,
-                        shinydashboard::box(
-                            width = NULL,
-                            title = "Country",
-                            solidHeader = TRUE,
-                            class = "fixed-height-box",
-                            htmltools::div(
-                                class = "table-container",
-                                shiny::uiOutput("class_summary")
-                            )
-                            # div(class = "controls-container",
-                            #     div(
-                            #         style = "text-align: right;",
-                            #         actionButton("remove_C", "Remove", class = "btn-danger btn-sm")
-                            #     )
-                            # )
-                        )
-                    )
-                }
-            })
+            purrr::map(var_list, ~ boxFun(.x, dat)) |>
+                purrr::discard(is.null)
         )
     })
 
+    ## Table ####
     output$table_tab <- DT::renderDT({
         data <- filtered_data()
-        dt <- DT::datatable(
+        DT::datatable(
             data = data,
-            options = list(
-                pageLength = 10,
-                scrollX = TRUE,
-                dom = 'Bfrtip'
-            ),
-            rownames = FALSE,
-            caption = "curatedMetagenomicData samples"
-        )
-        return(dt)
-    })
-
-    output$class_summary <- renderUI({
-        counts <- country_counts()
-        htmltools::tags$table(
-            class = "summary-table",
-            htmltools::tags$thead(
-                htmltools::tags$tr(
-                    htmltools::tags$th("Select"),
-                    htmltools::tags$th("country"),
-                    htmltools::tags$th("n"),
-                    htmltools::tags$th("%")
-                )
-            ),
-            htmltools::tags$body(
-                lapply(1:nrow(counts), function(i) {
-                    cls <- counts$country[i]
-                    htmltools::tags$tr(
-                        htmltools::tags$td(
-                            class = "checkbox-cell",
-                            shiny::checkboxInput(
-                                inputId = paste0("class_", make.names(cls)),
-                                label = NULL,
-                                value = cls %in% selected_classes()
-                            )
-                        ),
-                        tags$td(cls),
-                        tags$td(counts$n[i]),
-                        tags$td(counts$per[i]),
-                    )
-                })
-            )
+            rownames = FALSE
         )
     })
 
-    output$body_site_plot <- shiny::renderPlot({
-        plotFun(filtered_data(), "body_site")
-    }, res = 80)
-
-    output$mpg_plot <- shiny::renderPlot({
-        plotFun(filtered_data(), "bmi")
-    }, res = 80)
 }

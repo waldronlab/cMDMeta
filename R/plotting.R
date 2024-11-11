@@ -41,10 +41,3 @@ plotFun <- function(dat, varName) {
     }
 
 }
-
-
-plotDiscrete <- function(dat) {}
-
-# ggplot2::ggplot(
-#     mapping = ggplot2::aes(x = )
-# )

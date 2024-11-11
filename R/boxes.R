@@ -1,9 +1,6 @@
-boxDiscreteShort <- function(x) {
+boxDiscreteShort <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_menu"))
-    message(plotOutputId)
-    message(widgetId)
-    return(NULL)
     shiny::column(
         width = 3,
         shinydashboard::box(
@@ -13,7 +10,7 @@ boxDiscreteShort <- function(x) {
             class = "fixed-height-box",
             htmltools::div(
                 class = "plot-container",
-                shiny::plotOutput(plotOutput, height = "100%")
+                shiny::plotOutput(plotOutputId, height = "100%")
             ),
             htmltools::div(
                 class = "controls-container",
@@ -36,8 +33,6 @@ boxDiscreteShort <- function(x) {
 
 boxDiscreteLong <- function(x) {
     outputId <- make.names(paste0(x, "_", "summary"))
-    message(outputId)
-    return(NULL)
     shiny::column(
         width = 3,
         shinydashboard::box(
@@ -53,12 +48,9 @@ boxDiscreteLong <- function(x) {
     )
 }
 
-boxContinuous <- function(x) {
+boxContinuous <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_range"))
-    message(plotOutputId)
-    message(widgetId)
-    return(NULL)
     shiny::column(
         width = 3,
         shinydashboard::box(
@@ -86,13 +78,13 @@ boxContinuous <- function(x) {
     )
 }
 
-boxFun <- function(x) {
+boxFun <- function(x, dat) {
     classVar <- metadataVars[[x]]$class
     lenVar <- metadataVars[[x]]$length
     if (classVar == "numeric" || classVar == "integer") {
-        return(boxContinuous(x))
+        return(boxContinuous(x, dat))
     } else if (classVar == "character" && lenVar <= 7) {
-        return(boxDiscreteShort(x))
+        return(boxDiscreteShort(x, dat))
     } else if (classVar == "character" && lenVar > 7) {
         return(boxDiscreteLong(x))
     }

@@ -12,7 +12,7 @@ currentVars <- c(
     # "age_years",
     "bmi"
     # "treatment",
-    # "smoker",
+    # "smoker"
     # "ancestry"
 )
 
@@ -62,8 +62,8 @@ createUI <- function() {
                     tabName = "table",
                     shiny::fluidRow(
                         shinydashboard::box(
-                            title = "Table",
-                            status = "info",
+                            # title = "Table",
+                            # status = "info",
                             solidHeader = TRUE,
                             width = 12,
                             DT::DTOutput("table_tab")
