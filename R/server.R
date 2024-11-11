@@ -151,7 +151,6 @@ server <- function(input, output, session) {
             } else if (classVar == "character" && lenVar > 7) {
                 if (!is.null(reactive_values_2[[i]])) {
                     selected <- reactive_values_2[[i]]
-                    print(selected)
                     if (length(selected) > 0) {
                         data <- data |>
                             dplyr::filter(
