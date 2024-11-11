@@ -1,11 +1,11 @@
 boxDiscreteShort <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_menu"))
-    shiny::column(
-        width = 3,
+    # shiny::column(
+    #     width = 3,
         shinydashboard::box(
-            width = NULL,
-            title = x,
+            width = 3,
+            title = .textR(x),
             solidHeader = TRUE,
             class = "fixed-height-box",
             htmltools::div(
@@ -28,16 +28,16 @@ boxDiscreteShort <- function(x, dat) {
                 )
             )
         )
-    )
+    # )
 }
 
 boxDiscreteLong <- function(x) {
     outputId <- make.names(paste0(x, "_", "summary"))
-    shiny::column(
-        width = 3,
+    # shiny::column(
+        # width = 3,
         shinydashboard::box(
-            width = NULL,
-            title = x,
+            width = 3,
+            title = .textR(x),
             solidHeader = TRUE,
             class = "fixed-height-box",
             htmltools::div(
@@ -45,17 +45,17 @@ boxDiscreteLong <- function(x) {
                 shiny::uiOutput(outputId)
             )
         )
-    )
+    # )
 }
 
 boxContinuous <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_range"))
-    shiny::column(
-        width = 3,
+    # shiny::column(
+    #     width = 3,
         shinydashboard::box(
-            width = NULL,
-            title = x,
+            width = 3,
+            title = .textR(x),
             status = NULL,
             solidHeader = TRUE,
             class = "fixed-height-box",
@@ -75,7 +75,7 @@ boxContinuous <- function(x, dat) {
                 )
             )
         )
-    )
+    # )
 }
 
 boxFun <- function(x, dat) {
@@ -88,4 +88,11 @@ boxFun <- function(x, dat) {
     } else if (classVar == "character" && lenVar > 7) {
         return(boxDiscreteLong(x))
     }
+}
+
+
+.textR <- function(x) {
+    x |>
+        stringr::str_replace_all("_", " ") |>
+        stringr::str_to_sentence()
 }

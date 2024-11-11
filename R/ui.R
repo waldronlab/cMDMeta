@@ -62,9 +62,9 @@ createUI <- function() {
                             outputId = "box_samples", width = 6
                         )
                     ),
-                    shiny::fluidRow(
+                    # shiny::fluidRow(
                         shiny::uiOutput("plots_tab")
-                    )
+                    # )
                 ),
                 shinydashboard::tabItem(
                     tabName = "table",

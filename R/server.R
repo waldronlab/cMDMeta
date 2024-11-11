@@ -212,7 +212,6 @@ server <- function(input, output, session) {
         if (!length(input$vars) || !nrow(data)) {
             return(data[0,, drop = FALSE])
         }
-        message(nrow(data))
         return(data)
     })
 
