@@ -1,7 +1,7 @@
 Package: cmdMeta
 Type: Package
 Title: Dashboard for curateMetagenomicData samples
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     c(
         person(
@@ -10,7 +10,7 @@ Authors@R:
         )
     )
 Description: 
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
@@ -26,4 +26,4 @@ Imports:
     utils
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 2.10)
+    R (>= 4.4)

@@ -5,6 +5,19 @@ plotFun <- function(dat, varName) {
     varLab <- metadataVars[[varName]]$label
     var <- dat[[varName]]
 
+    if (varCls == "character") {
+        dat[[varName]] <- as.character(var)
+        dat <- dat |>
+            dplyr::filter(
+                !is.na(.data[[varName]]) & .data[[varName]] != "NA"
+            )
+    } else if (varCls == "numeric" || varCls == "integer") {
+        dat <- dat |>
+            dplyr::filter(
+                !is.na(.data[[varName]])
+            )
+    }
+
     if(!nrow(dat)) {
         p <- ggplot2::ggplot() +
             ggplot2::theme_void() +
@@ -22,7 +35,7 @@ plotFun <- function(dat, varName) {
                     y = .data[["n"]]
                 )
             ) +
-            ggplot2::geom_col(fill = "blue") +
+            ggplot2::geom_col() +
             ggplot2::labs(
                 x = varName, y = "Samples"
             ) +
@@ -35,7 +48,10 @@ plotFun <- function(dat, varName) {
                     x = .data[[varName]]
                 )
             ) +
-            ggplot2::geom_histogram(fill = "blue", color = "white", size = 0.1) +
+            ggplot2::geom_histogram(
+                # fill = "blue",
+                color = "white", size = 0.1
+            ) +
             ggplot2::theme_classic()
         return(p)
     }

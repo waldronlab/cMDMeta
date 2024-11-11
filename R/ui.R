@@ -9,7 +9,7 @@ currentVars <- c(
     "sequencing_platform",
     "sex",
     "antibiotics_current_use",
-    # "age_years",
+    "age_years",
     "bmi",
     "treatment",
     "smoker",

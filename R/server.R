@@ -6,14 +6,23 @@ server <- function(input, output, session) {
         package = "cmdMeta", mustWork = TRUE
     ) |>
         utils::read.csv() |>
-        dplyr::filter(
-            !is.na(.data$country),
-            !is.na(.data$body_site),
-            !is.na(.data$bmi)
-        ) |>
-        dplyr::mutate(
-            country = gsub(" ", "_", .data$country),
-            body_site = gsub(" ", "_", .data$body_site)
+        # dplyr::filter(
+            # !is.na(.data$country),
+            # !is.na(.data$body_site),
+            # !is.na(.data$bmi)
+        # ) |>
+        # dplyr::mutate(
+        #     country = gsub(" ", "_", .data$country),
+        #     body_site = gsub(" ", "_", .data$body_site)
+        # )
+        purrr::modify_if(
+            .p = is.character,
+            .f = function(x) {
+                dplyr::case_when(
+                    is.na(x) ~ "NA",
+                    TRUE ~ x
+                )
+            }
         )
 
     visible_vars <- shiny::reactive({
@@ -30,6 +39,8 @@ server <- function(input, output, session) {
             if (classVar == "character" && lenVar > 7) {
                 data <- filtered_data()
                 all_vals <- unique(dat[[.x]])
+                all_vals <- all_vals[!is.na(all_vals)]
+                all_vals <- all_vals[all_vals != "NA"]
                 counts <- table(factor(data[[.x]], levels = all_vals))
                 df <- data.frame(
                     x = names(counts),
@@ -70,7 +81,7 @@ server <- function(input, output, session) {
     #     })
     # })
 
-    observe({
+    shiny::observe({
         visVars <- visible_vars()
 
         # Loop through visible variables
@@ -90,7 +101,7 @@ server <- function(input, output, session) {
                         input_id <- paste0("class_", local_var, "_", make.names(cls))
 
                         if (!is.null(input[[input_id]])) {
-                            observeEvent(input[[input_id]], {
+                            shiny::observeEvent(input[[input_id]], {
                                 current <- reactive_values_2[[local_var]]
                                 if (input[[input_id]]) {
                                     reactive_values_2[[local_var]] <- unique(c(current, cls))
@@ -117,8 +128,8 @@ server <- function(input, output, session) {
 
    ############################################################################
 
-    reactive_values_2 <- reactiveValues()
-    observe({
+    reactive_values_2 <- shiny::reactiveValues()
+    shiny::observe({
         visVars <- visible_vars()
         for (var in visVars) {
             classVar <- metadataVars[[var]]$class
@@ -183,6 +194,7 @@ server <- function(input, output, session) {
         if (!length(input$vars) || !nrow(data)) {
             return(data[0,, drop = FALSE])
         }
+        message(nrow(data))
         return(data)
     })
 

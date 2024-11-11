@@ -68,9 +68,9 @@ boxContinuous <- function(x, dat) {
                 shiny::sliderInput(
                     inputId = widgetId,
                     label = NULL,
-                    min = floor(min(dat[[x]])),
-                    max = ceiling(max(dat[[x]])),
-                    value = c(floor(min(dat[[x]])), ceiling(max(dat[[x]]))),
+                    min = floor(min(dat[[x]], na.rm = TRUE)),
+                    max = ceiling(max(dat[[x]], na.rm = TRUE)),
+                    value = c(floor(min(dat[[x]], na.rm = TRUE)), ceiling(max(dat[[x]], na.rm = TRUE))),
                     step = 1
                 )
             )
