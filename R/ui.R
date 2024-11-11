@@ -18,7 +18,7 @@ currentVars <- sort(c(
 
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
-        skin = "black",
+        skin = "blue",
         title = "cmdMeta",
         header = shinydashboard::dashboardHeader(title = "cmdMeta"),
         sidebar = shinydashboard::dashboardSidebar(

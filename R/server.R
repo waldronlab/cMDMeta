@@ -185,8 +185,9 @@ server <- function(input, output, session) {
             shinydashboard::valueBox(
                 value = paste0(length(unique(filtered_data()$study_name))),
                 subtitle = "Studies",
-                icon = shiny::icon("list"),
-                color = "blue"
+                icon = shiny::icon("flask"),
+                color = "purple",
+                href = "https://waldronlab.io/curatedMetagenomicData/articles/available-studies.html"
             )
         })
 
@@ -194,8 +195,9 @@ server <- function(input, output, session) {
             shinydashboard::valueBox(
                 value = paste0(length(unique(filtered_data()$ncbi_accession))),
                 subtitle = "NCBI accession numbers",
-                icon = shiny::icon("list"),
-                color = "olive"
+                icon = shiny::icon("database"),
+                color = "olive",
+                href = "https://www.ncbi.nlm.nih.gov/sra/docs/"
             )
         })
 
