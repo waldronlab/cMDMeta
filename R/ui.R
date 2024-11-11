@@ -1,4 +1,4 @@
-currentVars <- c(
+currentVars <- sort(c(
     "target_condition",
     "control",
     "country",
@@ -14,7 +14,7 @@ currentVars <- c(
     "treatment",
     "smoker",
     "ancestry"
-)
+))
 
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
@@ -54,6 +54,14 @@ createUI <- function() {
             shinydashboard::tabItems(
                 shinydashboard::tabItem(
                     tabName = "plots",
+                    shiny::fluidRow(
+                        shinydashboard::valueBoxOutput(
+                            outputId = "box_studies", width = 6
+                        ),
+                        shinydashboard::valueBoxOutput(
+                            outputId = "box_samples", width = 6
+                        )
+                    ),
                     shiny::fluidRow(
                         shiny::uiOutput("plots_tab")
                     )

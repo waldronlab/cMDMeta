@@ -181,6 +181,24 @@ server <- function(input, output, session) {
 
         }
 
+        output$box_studies <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = paste0(length(unique(filtered_data()$study_name))),
+                subtitle = "Studies",
+                icon = shiny::icon("list"),
+                color = "blue"
+            )
+        })
+
+        output$box_samples <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = paste0(length(unique(filtered_data()$ncbi_accession))),
+                subtitle = "NCBI accession numbers",
+                icon = shiny::icon("list"),
+                color = "olive"
+            )
+        })
+
         # if ("country" %in% input$vars) {
         #     selected <- selected_country()
         #     if (length(selected) > 0) {
