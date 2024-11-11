@@ -262,7 +262,8 @@ server <- function(input, output, session) {
         data <- filtered_data()
         DT::datatable(
             data = data,
-            rownames = FALSE
+            rownames = FALSE,
+            options = list(scrollX = TRUE)
         )
     })
 
