@@ -7,14 +7,14 @@ server <- function(input, output, session) {
     ) |>
         utils::read.csv() |>
         # dplyr::filter(
-            # !is.na(.data$country),
-            # !is.na(.data$body_site),
-            # !is.na(.data$bmi)
+        # !is.na(.data$country),
+        # !is.na(.data$body_site),
+        # !is.na(.data$bmi)
         # ) |>
         # dplyr::mutate(
         #     country = gsub(" ", "_", .data$country),
         #     body_site = gsub(" ", "_", .data$body_site)
-        # )
+        # ) |>
         purrr::modify_if(
             .p = is.character,
             .f = function(x) {
@@ -173,11 +173,11 @@ server <- function(input, output, session) {
             } else if (classVar == "numeric" || classVar == "integer") {
                 data <- data |>
                     dplyr::filter(
-                        (.data[[i]] >= input[[paste0(i, "_range")]][1] & .data[[i]] <= input[[paste0(i, "_range")]][2]) | is.na(.data[[i]])
+                        .data[[i]] >= input[[paste0(i, "_range")]][1],
+                        .data[[i]] <= input[[paste0(i, "_range")]][2]
+                        # (.data[[i]] >= input[[paste0(i, "_range")]][1] & .data[[i]] <= input[[paste0(i, "_range")]][2]) | is.na(.data[[i]])
                     )
-
             }
-
         }
 
         output$box_studies <- shinydashboard::renderValueBox({

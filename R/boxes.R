@@ -7,7 +7,7 @@ boxDiscreteShort <- function(x, dat) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
-            status = "primary",
+            status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             # htmltools::div(
                 # class = "plot-container",
@@ -40,7 +40,8 @@ boxDiscreteLong <- function(x) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
-            status = "primary",
+            # status = "primary",
+            status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             htmltools::div(
             class = "table-container",
@@ -59,7 +60,7 @@ boxContinuous <- function(x, dat) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
-            status = "primary",
+            status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             # htmltools::div(
                 # class = "plot-container",

@@ -16,13 +16,21 @@ currentVars <- sort(c(
     "ancestry"
 ))
 
+noNAVars <- c(
+    "body_site",
+    "control",
+    "country",
+    "target_condition",
+    "westernized"
+)
+
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
         skin = "blue",
         title = "cmdMeta",
         header = shinydashboard::dashboardHeader(title = "cmdMeta"),
         sidebar = shinydashboard::dashboardSidebar(
-            collapsed = TRUE,
+            collapsed = FALSE,
             shinydashboard::sidebarMenu(
                 shinyWidgets::pickerInput(
                     inputId = "vars",
@@ -30,6 +38,7 @@ createUI <- function() {
                     choices = currentVars,
                     multiple = TRUE,
                     selected = currentVars,
+                    # selected = currentVars[currentVars %in% noNAVars],
                     options = list(
                         `actions-box` = TRUE,
                         `live-search` = TRUE,
