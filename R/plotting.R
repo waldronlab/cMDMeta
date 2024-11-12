@@ -35,11 +35,15 @@ plotFun <- function(dat, varName) {
                     y = .data[["n"]]
                 )
             ) +
-            ggplot2::geom_col() +
+            ggplot2::geom_col(fill = "dodgerblue4") +
+            # ggplot2::scale_x_discrete(labels= function(x) stringr::str_trunc(x, width = 10)) +
             ggplot2::labs(
                 x = varName, y = "Samples"
             ) +
-            ggplot2::theme_classic()
+            ggplot2::theme_bw() +
+            ggplot2::theme(
+                axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+            )
         return(p)
     } else if (varLab == "numeric") {
         p <- dat |>
@@ -49,10 +53,10 @@ plotFun <- function(dat, varName) {
                 )
             ) +
             ggplot2::geom_histogram(
-                # fill = "blue",
+                fill = "dodgerblue4",
                 color = "white", size = 0.1
             ) +
-            ggplot2::theme_classic()
+            ggplot2::theme_bw()
         return(p)
     }
 

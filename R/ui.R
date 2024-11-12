@@ -22,6 +22,7 @@ createUI <- function() {
         title = "cmdMeta",
         header = shinydashboard::dashboardHeader(title = "cmdMeta"),
         sidebar = shinydashboard::dashboardSidebar(
+            collapsed = TRUE,
             shinydashboard::sidebarMenu(
                 shinyWidgets::pickerInput(
                     inputId = "vars",

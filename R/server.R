@@ -173,8 +173,7 @@ server <- function(input, output, session) {
             } else if (classVar == "numeric" || classVar == "integer") {
                 data <- data |>
                     dplyr::filter(
-                        .data[[i]] >= input[[paste0(i, "_range")]][1],
-                        .data[[i]] <= input[[paste0(i, "_range")]][2]
+                        (.data[[i]] >= input[[paste0(i, "_range")]][1] & .data[[i]] <= input[[paste0(i, "_range")]][2]) | is.na(.data[[i]])
                     )
 
             }

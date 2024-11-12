@@ -7,13 +7,14 @@ boxDiscreteShort <- function(x, dat) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
+            status = "primary",
             class = "fixed-height-box",
-            htmltools::div(
-                class = "plot-container",
-                shiny::plotOutput(plotOutputId, height = "100%")
-            ),
-            htmltools::div(
-                class = "controls-container",
+            # htmltools::div(
+                # class = "plot-container",
+                shiny::plotOutput(plotOutputId),
+            # ),
+            # htmltools::div(
+            #     class = "controls-container",
                 shinyWidgets::pickerInput(
                     inputId = widgetId,
                     label = NULL,
@@ -26,7 +27,7 @@ boxDiscreteShort <- function(x, dat) {
                         `selected-text-format` = "count > 1"
                     )
                 )
-            )
+            # )
         )
     # )
 }
@@ -39,9 +40,10 @@ boxDiscreteLong <- function(x) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
+            status = "primary",
             class = "fixed-height-box",
             htmltools::div(
-                class = "table-container",
+            class = "table-container",
                 shiny::uiOutput(outputId)
             )
         )
@@ -56,15 +58,15 @@ boxContinuous <- function(x, dat) {
         shinydashboard::box(
             width = 3,
             title = .textR(x),
-            status = NULL,
             solidHeader = TRUE,
+            status = "primary",
             class = "fixed-height-box",
-            htmltools::div(
-                class = "plot-container",
-                shiny::plotOutput(plotOutputId, height = "100%")
-            ),
-            htmltools::div(
-                class = "controls-container",
+            # htmltools::div(
+                # class = "plot-container",
+                shiny::plotOutput(plotOutputId),
+            # ),
+            # htmltools::div(
+                # class = "controls-container",
                 shiny::sliderInput(
                     inputId = widgetId,
                     label = NULL,
@@ -73,7 +75,7 @@ boxContinuous <- function(x, dat) {
                     value = c(floor(min(dat[[x]], na.rm = TRUE)), ceiling(max(dat[[x]], na.rm = TRUE))),
                     step = 1
                 )
-            )
+            # )
         )
     # )
 }

@@ -1,16 +1,16 @@
 custom_css <- "
     .fixed-height-box {
-        height: 400px;
+        height: 450px;
         display: flex;
         flex-direction: column;
     }
 
     .plot-container {
-        flex: 0 0 250px;
+        flex: 0 0 300px;
     }
 
     .table-container {
-        flex: 0 0 250px;
+        flex: 0 0 400px;
         overflow-y: auto;
     }
 
