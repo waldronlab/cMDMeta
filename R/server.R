@@ -182,7 +182,7 @@ server <- function(input, output, session) {
 
         output$box_studies <- shinydashboard::renderValueBox({
             shinydashboard::valueBox(
-                value = paste0(length(unique(filtered_data()$study_name))),
+                value = length(unique(filtered_data()$study_name)),
                 subtitle = "Studies",
                 icon = shiny::icon("flask"),
                 color = "purple",
@@ -192,7 +192,7 @@ server <- function(input, output, session) {
 
         output$box_samples <- shinydashboard::renderValueBox({
             shinydashboard::valueBox(
-                value = paste0(length(unique(filtered_data()$ncbi_accession))),
+                value = format(length(unique(filtered_data()$ncbi_accession)), big.mark = ","),
                 subtitle = "NCBI accession numbers",
                 icon = shiny::icon("database"),
                 color = "olive",
