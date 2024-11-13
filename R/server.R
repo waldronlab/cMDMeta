@@ -1,35 +1,55 @@
 server <- function(input, output, session) {
+    dat <- metadata
+    visible_vars <- shiny::reactive(input$vars)
+    reactive_list <- shiny::reactiveValues()
+    reactive_values_2 <- shiny::reactiveValues()
 
-    ## Data ####
-    dat <- system.file(
-        "extdata", "cMD_curated_metadata_release.csv",
-        package = "cmdMeta", mustWork = TRUE
-    ) |>
-        utils::read.csv() |>
-        # dplyr::filter(
-        # !is.na(.data$country),
-        # !is.na(.data$body_site),
-        # !is.na(.data$bmi)
-        # ) |>
-        # dplyr::mutate(
-        #     country = gsub(" ", "_", .data$country),
-        #     body_site = gsub(" ", "_", .data$body_site)
-        # ) |>
-        purrr::modify_if(
-            .p = is.character,
-            .f = function(x) {
-                dplyr::case_when(
-                    is.na(x) ~ "NA",
-                    TRUE ~ x
-                )
+
+    filtered_data <- shiny::reactive({
+        ## This code chunck will run until a box has been created
+        shiny::req(any(grepl("(_menu|class_|_range)", names(input))))
+        data <- dat
+        for (i in input$vars) {
+            classVar <- metadataVars[[i]]$class
+            lenVar <- metadataVars[[i]]$length
+            if (classVar == "character" && lenVar <= 7) {
+                data <- data |>
+                    dplyr::filter(
+                        .data[[i]] %in% input[[paste0(i, "_menu")]]
+                    )
+                print(head(data))
+                message(i)
+                message(dim(data))
+
+            } else if (classVar == "character" && lenVar > 7) {
+                if (!is.null(reactive_values_2[[i]])) {
+                    selected <- reactive_values_2[[i]]
+                    if (length(selected) > 0) {
+                        data <- data |>
+                            dplyr::filter(
+                                .data[[i]] %in% selected
+                            )
+                        # message(dim(data))
+                    }
+                }
+            } else if (classVar == "numeric" || classVar == "integer") {
+                shiny::req(input[[paste0(i, "_range")]])
+                data <- data |>
+                    dplyr::filter(
+                        .data[[i]] >= input[[paste0(i, "_range")]][1],
+                        .data[[i]] <= input[[paste0(i, "_range")]][2]
+                    )
             }
-        )
-
-    visible_vars <- shiny::reactive({
-        input$vars
+        }
+        if (!nrow(data)) {
+            return(data[0,, drop = FALSE])
+        }
+        return(data)
     })
 
-    reactive_list <- shiny::reactiveValues()
+
+
+    ## Create summary for counttries
     shiny::observe({
         visVars <- visible_vars()
         names(visVars) <- visVars
@@ -57,30 +77,9 @@ server <- function(input, output, session) {
             purrr::discard(is.null)
     })
 
-    ###########################################################################
-    # selected_country <- shiny::reactiveVal(unique(dat$country))
-    # shiny::observe({
-    #     class_list <- unique(dat$country)
-    #     lapply(class_list, function(cls) {
-    #         if (!is.null(input[[paste0("class_country_", make.names(cls))]])) {
-    #             shiny::observeEvent(input[[paste0("class_country_", make.names(cls))]], {
-    #                 # current <- selected_country()
-    #                 # current <- reactive_list_2$list[["country"]]()
-    #                 current <- reactive_values_2[["country"]]
-    #                 if (input[[paste0("class_country_", make.names(cls))]]) {
-    #                     # selected_country(unique(c(current, cls)))
-    #                     # reactive_list_2$list[["country"]](unique(c(current, cls)))
-    #                     reactive_values_2[["country"]] <- unique(c(current, cls))
-    #                 } else {
-    #                     # selected_country(setdiff(current, cls))
-    #                     # reactive_list_2$list[["country"]](setdiff(current, cls))
-    #                     reactive_values_2[["country"]] <- setdiff(current, cls)
-    #                 }
-    #             })
-    #         }
-    #     })
-    # })
 
+
+    ## Create filtres for countires
     shiny::observe({
         visVars <- visible_vars()
 
@@ -116,19 +115,6 @@ server <- function(input, output, session) {
         }
     })
 
-
-
-
-
-
-
-
-
-
-
-   ############################################################################
-
-    reactive_values_2 <- shiny::reactiveValues()
     shiny::observe({
         visVars <- visible_vars()
         for (var in visVars) {
@@ -145,75 +131,22 @@ server <- function(input, output, session) {
         }
     })
 
-    ## Filter data ####
-    filtered_data <- shiny::reactive({
-        data <- dat
-        shiny::req(input$vars)
-        for (i in input$vars) {
-            classVar <- metadataVars[[i]]$class
-            lenVar <- metadataVars[[i]]$length
+    output$box_studies <- shinydashboard::renderValueBox({
+        shinydashboard::valueBox(
+            value = length(unique(filtered_data()$study_name)),
+            subtitle = "Studies",
+            icon = shiny::icon("flask"),
+            color = "purple"
+        )
+    })
 
-            if (classVar == "character" && lenVar <= 7) {
-                data <- data |>
-                    dplyr::filter(
-                        .data[[i]] %in% input[[paste0(i, "_menu")]]
-                    )
-
-            } else if (classVar == "character" && lenVar > 7) {
-                if (!is.null(reactive_values_2[[i]])) {
-                    selected <- reactive_values_2[[i]]
-                    if (length(selected) > 0) {
-                        data <- data |>
-                            dplyr::filter(
-                                .data[[i]] %in% selected
-                            )
-                    }
-                }
-
-            } else if (classVar == "numeric" || classVar == "integer") {
-                data <- data |>
-                    dplyr::filter(
-                        .data[[i]] >= input[[paste0(i, "_range")]][1],
-                        .data[[i]] <= input[[paste0(i, "_range")]][2]
-                        # (.data[[i]] >= input[[paste0(i, "_range")]][1] & .data[[i]] <= input[[paste0(i, "_range")]][2]) | is.na(.data[[i]])
-                    )
-            }
-        }
-
-        output$box_studies <- shinydashboard::renderValueBox({
-            shinydashboard::valueBox(
-                value = length(unique(filtered_data()$study_name)),
-                subtitle = "Studies",
-                icon = shiny::icon("flask"),
-                color = "purple",
-                href = "https://waldronlab.io/curatedMetagenomicData/articles/available-studies.html"
-            )
-        })
-
-        output$box_samples <- shinydashboard::renderValueBox({
-            shinydashboard::valueBox(
-                value = format(length(unique(filtered_data()$ncbi_accession)), big.mark = ","),
-                subtitle = "NCBI accession numbers",
-                icon = shiny::icon("database"),
-                color = "olive",
-                href = "https://www.ncbi.nlm.nih.gov/sra/docs/"
-            )
-        })
-
-        # if ("country" %in% input$vars) {
-        #     selected <- selected_country()
-        #     if (length(selected) > 0) {
-        #         data <- data |>
-        #             dplyr::filter(
-        #                 .data$country %in% selected
-        #             )
-        #     }
-        # }
-
-        if (!length(input$vars) || !nrow(data)) {
-            return(data[0,, drop = FALSE])
-        }
-        return(data)
+    output$box_samples <- shinydashboard::renderValueBox({
+        shinydashboard::valueBox(
+            value = format(length(unique(filtered_data()$ncbi_accession)), big.mark = ","),
+            subtitle = "NCBI accession numbers",
+            icon = shiny::icon("database"),
+            color = "olive"
+        )
     })
 
     ## Outputs in boxes ####
@@ -235,9 +168,7 @@ server <- function(input, output, session) {
                 outputName <- make.names(paste0(.x, "_summary"))
                 output[[outputName]] <- shiny::renderUI({
                     counts <- reactive_list$list[[.x]]
-                    # summaryFun(.x, counts, selected_country())
                     summaryFun(.x, counts, reactive_values_2[[.x]])
-                    # summaryFun(.x, counts, reactive_list_2$list[["country"]]())
                 })
                 return(NULL)
             }
@@ -245,26 +176,20 @@ server <- function(input, output, session) {
             purrr::discard(is.null)
     })
 
-    ## Plots ####
     output$plots_tab <- shiny::renderUI({
-        var_list <- visible_vars()
-        if (!length(var_list)) {
-            return(NULL)
-        }
+        shiny::req(input$vars)
         shiny::fluidRow(
-            purrr::map(var_list, ~ boxFun(.x, dat)) |>
+            purrr::map(input$vars, ~ boxFun(.x, dat)) |>
                 purrr::discard(is.null)
         )
     })
 
-    ## Table ####
     output$table_tab <- DT::renderDT({
-        data <- filtered_data()
+        shiny::req(input$vars)
         DT::datatable(
-            data = data,
+            data = filtered_data(),
             rownames = FALSE,
             options = list(scrollX = TRUE)
         )
     })
-
 }

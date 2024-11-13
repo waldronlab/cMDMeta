@@ -1,5 +1,5 @@
 summaryFun <- function(x, counts, selected_values) {
-    message("Here i am")
+    # message("Here i am")
     htmltools::tags$table(
         class = "summary-table",
         htmltools::tags$thead(
