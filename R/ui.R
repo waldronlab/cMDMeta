@@ -37,8 +37,8 @@ createUI <- function() {
                     label = "Select variables",
                     choices = currentVars,
                     multiple = TRUE,
-                    selected = currentVars,
-                    # selected = currentVars[currentVars %in% noNAVars],
+                    # selected = currentVars,
+                    selected = currentVars[currentVars %in% noNAVars],
                     options = list(
                         `actions-box` = TRUE,
                         `live-search` = TRUE,
@@ -72,16 +72,12 @@ createUI <- function() {
                             outputId = "box_samples", width = 6
                         )
                     ),
-                    # shiny::fluidRow(
-                        shiny::uiOutput("plots_tab")
-                    # )
+                    shiny::uiOutput("plots_tab")
                 ),
                 shinydashboard::tabItem(
                     tabName = "table",
                     shiny::fluidRow(
                         shinydashboard::box(
-                            # title = "Table",
-                            # status = "info",
                             solidHeader = TRUE,
                             width = 12,
                             DT::DTOutput("table_tab")
