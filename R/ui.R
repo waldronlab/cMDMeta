@@ -18,26 +18,27 @@ currentVars <- sort(c(
 
 noNAVars <- c(
     "body_site",
-    "control",
-    "country",
+    # "control",
+    # "country",
     "target_condition",
-    "westernized"
+    # "westernized"
+    "sex",
+    "bmi"
 )
 
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
-        skin = "blue",
+        skin = "black",
         title = "cmdMeta",
-        header = shinydashboard::dashboardHeader(title = "cmdMeta"),
+        header = shinydashboard::dashboardHeader(title = "Omics ML Repo"),
         sidebar = shinydashboard::dashboardSidebar(
-            collapsed = FALSE,
+            collapsed = TRUE,
             shinydashboard::sidebarMenu(
                 shinyWidgets::pickerInput(
                     inputId = "vars",
                     label = "Select variables",
                     choices = currentVars,
                     multiple = TRUE,
-                    # selected = currentVars,
                     selected = currentVars[currentVars %in% noNAVars],
                     options = list(
                         `actions-box` = TRUE,
@@ -46,43 +47,49 @@ createUI <- function() {
                     )
                 ),
                 shinydashboard::menuItem(
-                    text = "Plots", tabName = "plots",
-                    icon = shiny::icon("magnifying-glass-chart")
+                    text = "Main", tabName = "plots",
+                    icon = shiny::icon("house")
                 ),
                 shinydashboard::menuItem(
                     text = "Table", tabName = "table",
                     icon = shiny::icon("table")
+                ),
+                shinydashboard::menuItem(
+                    text = "About", tabName = "about",
+                    icon = shiny::icon("info-circle")
                 )
             )
         ),
         body = shinydashboard::dashboardBody(
             htmltools::tags$head(
-                htmltools::tags$style(
-                    htmltools::HTML(custom_css)
-                )
+                htmltools::tags$style(htmltools::HTML(custom_css))
             ),
             shinydashboard::tabItems(
                 shinydashboard::tabItem(
                     tabName = "plots",
                     shiny::fluidRow(
                         shinydashboard::valueBoxOutput(
-                            outputId = "box_studies", width = 6
+                            outputId = "box_studies", width = 3
                         ),
                         shinydashboard::valueBoxOutput(
-                            outputId = "box_samples", width = 6
+                            outputId = "box_samples", width = 3
+                        ),
+                        shinydashboard::valueBoxOutput(
+                            outputId = "box_countries", width = 3
+                        ),
+                        shinydashboard::valueBoxOutput(
+                            outputId = "box_diseases", width = 3
+                        ),
+                        shinydashboard::box(
+                            leaflet::leafletOutput(outputId = "map_tab"),
+                            width = 12
                         )
                     ),
                     shiny::uiOutput("plots_tab")
                 ),
                 shinydashboard::tabItem(
                     tabName = "table",
-                    shiny::fluidRow(
-                        shinydashboard::box(
-                            solidHeader = TRUE,
-                            width = 12,
-                            DT::DTOutput("table_tab")
-                        )
-                    )
+                    shiny::fluidPage(DT::DTOutput("table_tab"))
                 )
             )
         )

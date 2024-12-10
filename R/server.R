@@ -136,16 +136,35 @@ server <- function(input, output, session) {
             value = length(unique(filtered_data()$study_name)),
             subtitle = "Studies",
             icon = shiny::icon("flask"),
-            color = "purple"
+            color = "light-blue"
+            # color = "aqua"
         )
     })
 
     output$box_samples <- shinydashboard::renderValueBox({
         shinydashboard::valueBox(
-            value = format(length(unique(filtered_data()$ncbi_accession)), big.mark = ","),
-            subtitle = "NCBI accession numbers",
-            icon = shiny::icon("database"),
-            color = "olive"
+            value = format(length(unique(filtered_data()$sample_id)), big.mark = ","),
+            subtitle = "Samples",
+            icon = shiny::icon("chart-simple"),
+            color = "yellow"
+        )
+    })
+
+    output$box_countries <- shinydashboard::renderValueBox({
+        shinydashboard::valueBox(
+            value = format(length(unique(filtered_data()$country)), big.mark = ","),
+            subtitle = "Countries",
+            icon = shiny::icon("earth-americas"),
+            color = "teal"
+        )
+    })
+
+    output$box_diseases <- shinydashboard::renderValueBox({
+        shinydashboard::valueBox(
+            value = format(length(unique(filtered_data()$target_condition)), big.mark = ","),
+            subtitle = "Conditions",
+            icon = shiny::icon("heart-pulse"),
+            color = "maroon"
         )
     })
 
@@ -184,6 +203,19 @@ server <- function(input, output, session) {
         )
     })
 
+    output$map_tab <- leaflet::renderLeaflet({
+        leaflet::leaflet() |>
+            leaflet::addTiles(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                attribution = paste(
+                    "&copy; <a href=\"https://openstreetmap.org\">OpenStreetMap</a> contributors",
+                    "&copy; <a href=\"https://cartodb.com/attributions\">CartoDB</a>"
+                ),
+                options = leaflet::tileOptions(noWrap = TRUE)
+            ) |>
+            leaflet::setView(20, 40, zoom = 3)
+    })
+
     output$table_tab <- DT::renderDT({
         shiny::req(input$vars)
         DT::datatable(
@@ -193,3 +225,10 @@ server <- function(input, output, session) {
         )
     })
 }
+
+## TODO
+## Total countries
+## Total samples
+## Total disease/cancer types
+
+## Add number of samples and number of studios to map colors.

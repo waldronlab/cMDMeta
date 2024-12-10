@@ -7,11 +7,14 @@ boxDiscreteShort <- function(x, dat) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
-            status = ifelse(x %in% noNAVars, "primary", "info"),
+            # status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             # htmltools::div(
                 # class = "plot-container",
-                shiny::plotOutput(plotOutputId),
+                shiny::plotOutput(
+                    # plotOutputId, click = shiny::clickOpts("plot_click")
+                    plotOutputId
+                ),
             # ),
             # htmltools::div(
             #     class = "controls-container",
@@ -41,7 +44,7 @@ boxDiscreteLong <- function(x) {
             title = .textR(x),
             solidHeader = TRUE,
             # status = "primary",
-            status = ifelse(x %in% noNAVars, "primary", "info"),
+            # status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             htmltools::div(
             class = "table-container",
@@ -60,7 +63,7 @@ boxContinuous <- function(x, dat) {
             width = 3,
             title = .textR(x),
             solidHeader = TRUE,
-            status = ifelse(x %in% noNAVars, "primary", "info"),
+            # status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
             # htmltools::div(
                 # class = "plot-container",
