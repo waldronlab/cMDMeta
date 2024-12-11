@@ -18,6 +18,7 @@ Imports:
     DT,
     ggplot2,
     htmltools,
+    leaflet,
     plotly,
     purrr,
     shiny,
