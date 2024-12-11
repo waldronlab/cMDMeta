@@ -1,33 +1,17 @@
 
+# `cmdMeta` - Omics ML Repo
 
-Install in R with: 
+A dashboard for cuaratedMetagenomicData (cMD).
+
+## Installion in R
 
 ```r
 BiocManager::install("waldronlab/cmdMeta", dependencies = TRUE)
 ```
 
-Launch the app with:
+## Launch the app
 
 ```r
-library(cmdMeta)
-myApp()
+cmdMeta::myApp()
+
 ```
-
-
-Current variables:
-
-target_condition  
-control  
-country  
-body_site  
-westernized  
-age_group  
-disease  
-sequencing_platform  
-sex  
-antibiotics_current_use  
-age_years  
-bmi  
-treatment  
-smoker  
-ancestry  
