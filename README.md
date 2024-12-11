@@ -15,3 +15,9 @@ BiocManager::install("waldronlab/cmdMeta", dependencies = TRUE)
 cmdMeta::myApp()
 
 ```
+
+## Links
+
++ Related: https://github.com/shbrief/OmicsMLRepoDashboard
++ Inspiration: https://www.cbioportal.org/study/summary?id=msk_impact_2017
+
