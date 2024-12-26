@@ -1,4 +1,10 @@
-currentVars <- sort(c(
+CSS <- system.file(
+    "www", "custom.css", package = "cmdMeta"
+) |>
+    readLines() |>
+    paste(collapse = "\n")
+
+vars <- sort(c(
     "target_condition",
     "control",
     "country",
@@ -20,7 +26,7 @@ noNAVars <- c(
     "body_site",
     # "control",
     # "country",
-    "target_condition",
+    # "target_condition",
     # "westernized"
     "sex",
     "bmi"
@@ -29,7 +35,7 @@ noNAVars <- c(
 createUI <- function() {
     ui <- shinydashboard::dashboardPage(
         skin = "black",
-        title = "cmdMeta",
+        title = "cMDMeta",
         header = shinydashboard::dashboardHeader(title = "Omics ML Repo"),
         sidebar = shinydashboard::dashboardSidebar(
             collapsed = TRUE,
@@ -37,9 +43,9 @@ createUI <- function() {
                 shinyWidgets::pickerInput(
                     inputId = "vars",
                     label = "Select variables",
-                    choices = currentVars,
+                    choices = vars,
                     multiple = TRUE,
-                    selected = currentVars[currentVars %in% noNAVars],
+                    selected = vars[vars %in% noNAVars],
                     options = list(
                         `actions-box` = TRUE,
                         `live-search` = TRUE,
@@ -62,7 +68,7 @@ createUI <- function() {
         ),
         body = shinydashboard::dashboardBody(
             htmltools::tags$head(
-                htmltools::tags$style(htmltools::HTML(custom_css))
+                htmltools::tags$style(htmltools::HTML(CSS))
             ),
             shinydashboard::tabItems(
                 shinydashboard::tabItem(

@@ -1,9 +1,9 @@
 
-#' myApp
+#' cMDMeta
 #'
 #' @return A shiny app
 #' @export
 #'
-myApp <- function() {
+cMDMeta <- function() {
     shiny::shinyApp(ui = createUI(), server = server)
 }

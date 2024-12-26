@@ -1,18 +1,18 @@
 
-# `cmdMeta` - Omics ML Repo
+# `cMDMeta` - Omics ML Repo
 
 A dashboard for cuaratedMetagenomicData (cMD).
 
 ## Installion in R
 
 ```r
-BiocManager::install("waldronlab/cmdMeta", dependencies = TRUE)
+BiocManager::install("waldronlab/cMDMeta", dependencies = TRUE)
 ```
 
 ## Launch the app
 
 ```r
-cmdMeta::myApp()
+cmdMeta::cMDMeta()
 
 ```
 

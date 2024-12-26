@@ -1,7 +1,7 @@
-Package: cmdMeta
+Package: cMDMeta
 Type: Package
 Title: Dashboard for curateMetagenomicData samples
-Version: 0.99.1
+Version: 0.99.2
 Authors@R:
     c(
         person(

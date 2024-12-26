@@ -1,23 +1,14 @@
 boxDiscreteShort <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_menu"))
-    # shiny::column(
-    #     width = 3,
         shinydashboard::box(
-            width = 3,
+            width = 4,
             title = .textR(x),
             solidHeader = TRUE,
-            # status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
-            # htmltools::div(
-                # class = "plot-container",
                 shiny::plotOutput(
-                    # plotOutputId, click = shiny::clickOpts("plot_click")
                     plotOutputId
                 ),
-            # ),
-            # htmltools::div(
-            #     class = "controls-container",
                 shinyWidgets::pickerInput(
                     inputId = widgetId,
                     label = NULL,
@@ -30,47 +21,32 @@ boxDiscreteShort <- function(x, dat) {
                         `selected-text-format` = "count > 1"
                     )
                 )
-            # )
         )
-    # )
 }
 
-boxDiscreteLong <- function(x) {
-    outputId <- make.names(paste0(x, "_", "summary"))
-    # shiny::column(
-        # width = 3,
-        shinydashboard::box(
-            width = 3,
-            title = .textR(x),
-            solidHeader = TRUE,
-            # status = "primary",
-            # status = ifelse(x %in% noNAVars, "primary", "info"),
-            class = "fixed-height-box",
-            htmltools::div(
-            class = "table-container",
-                shiny::uiOutput(outputId)
-            )
-        )
-    # )
-}
+# boxDiscreteLong <- function(x) {
+#     outputId <- make.names(paste0(x, "_", "summary"))
+#         shinydashboard::box(
+#             width = 4,
+#             title = .textR(x),
+#             solidHeader = TRUE,
+#             class = "fixed-height-box",
+#             htmltools::div(
+#             class = "table-container",
+#                 shiny::uiOutput(outputId)
+#             )
+#         )
+# }
 
 boxContinuous <- function(x, dat) {
     plotOutputId <- make.names(paste0(x, "_plot"))
     widgetId <- make.names(paste0(x, "_range"))
-    # shiny::column(
-    #     width = 3,
         shinydashboard::box(
-            width = 3,
+            width = 4,
             title = .textR(x),
             solidHeader = TRUE,
-            # status = ifelse(x %in% noNAVars, "primary", "info"),
             class = "fixed-height-box",
-            # htmltools::div(
-                # class = "plot-container",
                 shiny::plotOutput(plotOutputId),
-            # ),
-            # htmltools::div(
-                # class = "controls-container",
                 shiny::sliderInput(
                     inputId = widgetId,
                     label = NULL,
@@ -79,9 +55,7 @@ boxContinuous <- function(x, dat) {
                     value = c(floor(min(dat[[x]], na.rm = TRUE)), ceiling(max(dat[[x]], na.rm = TRUE))),
                     step = 1
                 )
-            # )
         )
-    # )
 }
 
 boxFun <- function(x, dat) {
@@ -95,7 +69,6 @@ boxFun <- function(x, dat) {
         return(boxDiscreteLong(x))
     }
 }
-
 
 .textR <- function(x) {
     x |>

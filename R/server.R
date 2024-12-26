@@ -1,12 +1,12 @@
 server <- function(input, output, session) {
     dat <- metadata
+    
     visible_vars <- shiny::reactive(input$vars)
     reactive_list <- shiny::reactiveValues()
     reactive_values_2 <- shiny::reactiveValues()
-
-
+    
     filtered_data <- shiny::reactive({
-        ## This code chunck will run until a box has been created
+        shiny::req(dat)
         shiny::req(any(grepl("(_menu|class_|_range)", names(input))))
         data <- dat
         for (i in input$vars) {
@@ -17,10 +17,6 @@ server <- function(input, output, session) {
                     dplyr::filter(
                         .data[[i]] %in% input[[paste0(i, "_menu")]]
                     )
-                print(head(data))
-                message(i)
-                message(dim(data))
-
             } else if (classVar == "character" && lenVar > 7) {
                 if (!is.null(reactive_values_2[[i]])) {
                     selected <- reactive_values_2[[i]]
@@ -29,7 +25,6 @@ server <- function(input, output, session) {
                             dplyr::filter(
                                 .data[[i]] %in% selected
                             )
-                        # message(dim(data))
                     }
                 }
             } else if (classVar == "numeric" || classVar == "integer") {
@@ -46,8 +41,6 @@ server <- function(input, output, session) {
         }
         return(data)
     })
-
-
 
     ## Create summary for counttries
     shiny::observe({
@@ -77,9 +70,7 @@ server <- function(input, output, session) {
             purrr::discard(is.null)
     })
 
-
-
-    ## Create filtres for countires
+    ## Create filters for countries 
     shiny::observe({
         visVars <- visible_vars()
 
@@ -130,44 +121,7 @@ server <- function(input, output, session) {
             }
         }
     })
-
-    output$box_studies <- shinydashboard::renderValueBox({
-        shinydashboard::valueBox(
-            value = length(unique(filtered_data()$study_name)),
-            subtitle = "Studies",
-            icon = shiny::icon("flask"),
-            color = "light-blue"
-            # color = "aqua"
-        )
-    })
-
-    output$box_samples <- shinydashboard::renderValueBox({
-        shinydashboard::valueBox(
-            value = format(length(unique(filtered_data()$sample_id)), big.mark = ","),
-            subtitle = "Samples",
-            icon = shiny::icon("chart-simple"),
-            color = "yellow"
-        )
-    })
-
-    output$box_countries <- shinydashboard::renderValueBox({
-        shinydashboard::valueBox(
-            value = format(length(unique(filtered_data()$country)), big.mark = ","),
-            subtitle = "Countries",
-            icon = shiny::icon("earth-americas"),
-            color = "teal"
-        )
-    })
-
-    output$box_diseases <- shinydashboard::renderValueBox({
-        shinydashboard::valueBox(
-            value = format(length(unique(filtered_data()$target_condition)), big.mark = ","),
-            subtitle = "Conditions",
-            icon = shiny::icon("heart-pulse"),
-            color = "maroon"
-        )
-    })
-
+    
     ## Outputs in boxes ####
     shiny::observe({
         purrr::map(visible_vars(), ~ {
@@ -202,7 +156,52 @@ server <- function(input, output, session) {
                 purrr::discard(is.null)
         )
     })
+    
+    topBoxes(output, filtered_data)
+    worldMap(output)
+    fullTbl(input, output, filtered_data)
 
+}
+
+# Individual major output elements ----------------------------------------
+topBoxes <- function(output, filtered_data) {
+    list(
+        output$box_studies <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = length(unique(filtered_data()$study_name)),
+                subtitle = "Studies",
+                icon = shiny::icon("flask"),
+                color = "light-blue"
+            )
+        }), 
+        output$box_samples <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = format(length(unique(filtered_data()$sample_id)), big.mark = ","),
+                subtitle = "Samples",
+                icon = shiny::icon("chart-simple"),
+                color = "yellow"
+            )
+        }),
+        output$box_countries <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = format(length(unique(filtered_data()$country)), big.mark = ","),
+                subtitle = "Countries",
+                icon = shiny::icon("earth-americas"),
+                color = "teal"
+            )
+        }),
+        output$box_diseases <- shinydashboard::renderValueBox({
+            shinydashboard::valueBox(
+                value = format(length(unique(filtered_data()$target_condition)), big.mark = ","),
+                subtitle = "Conditions",
+                icon = shiny::icon("heart-pulse"),
+                color = "maroon"
+            )
+        })
+    )
+}
+
+worldMap <- function(output) {
     output$map_tab <- leaflet::renderLeaflet({
         leaflet::leaflet() |>
             leaflet::addTiles(
@@ -215,7 +214,9 @@ server <- function(input, output, session) {
             ) |>
             leaflet::setView(20, 40, zoom = 3)
     })
+} 
 
+fullTbl <- function(input, output, filtered_data) {
     output$table_tab <- DT::renderDT({
         shiny::req(input$vars)
         DT::datatable(
@@ -225,10 +226,3 @@ server <- function(input, output, session) {
         )
     })
 }
-
-## TODO
-## Total countries
-## Total samples
-## Total disease/cancer types
-
-## Add number of samples and number of studios to map colors.
