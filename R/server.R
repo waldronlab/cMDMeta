@@ -1,50 +1,55 @@
+
 server <- function(input, output, session) {
+    ## metadat and metadataVars are saved in R/sysdata.rda
     dat <- metadata
     
-    visible_vars <- shiny::reactive(input$vars)
     reactive_list <- shiny::reactiveValues()
     reactive_values_2 <- shiny::reactiveValues()
     
     filtered_data <- shiny::reactive({
+        shiny::req(input$vars)
         shiny::req(dat)
         shiny::req(any(grepl("(_menu|class_|_range)", names(input))))
+        
         data <- dat
-        for (i in input$vars) {
-            classVar <- metadataVars[[i]]$class
-            lenVar <- metadataVars[[i]]$length
-            if (classVar == "character" && lenVar <= 7) {
+        
+        for (ivar in input$vars) {
+            varLab <- metadataVars[[ivar]]$label
+            if (varLab == "discrete_short") {
                 data <- data |>
                     dplyr::filter(
-                        .data[[i]] %in% input[[paste0(i, "_menu")]]
+                        .data[[ivar]] %in% input[[paste0(ivar, "_menu")]]
                     )
-            } else if (classVar == "character" && lenVar > 7) {
-                if (!is.null(reactive_values_2[[i]])) {
-                    selected <- reactive_values_2[[i]]
+            } else if (varLab == "discrete_long") {
+                if (!is.null(reactive_values_2[[ivar]])) {
+                    selected <- reactive_values_2[[ivar]]
                     if (length(selected) > 0) {
                         data <- data |>
                             dplyr::filter(
-                                .data[[i]] %in% selected
+                                .data[[ivar]] %in% selected
                             )
                     }
                 }
-            } else if (classVar == "numeric" || classVar == "integer") {
-                shiny::req(input[[paste0(i, "_range")]])
+            } else if (varLab == "numeric") {
+                shiny::req(input[[paste0(ivar, "_range")]])
                 data <- data |>
                     dplyr::filter(
-                        .data[[i]] >= input[[paste0(i, "_range")]][1],
-                        .data[[i]] <= input[[paste0(i, "_range")]][2]
+                        .data[[ivar]] >= input[[paste0(ivar, "_range")]][1],
+                        .data[[ivar]] <= input[[paste0(ivar, "_range")]][2]
                     )
             }
         }
+        
         if (!nrow(data)) {
             return(data[0,, drop = FALSE])
         }
+        
         return(data)
     })
 
     ## Create summary for counttries
     shiny::observe({
-        visVars <- visible_vars()
+        visVars <- input$vars
         names(visVars) <- visVars
         reactive_list$list <- purrr::map(visVars, ~ {
             classVar <- metadataVars[[.x]]$class
@@ -70,11 +75,9 @@ server <- function(input, output, session) {
             purrr::discard(is.null)
     })
 
-    ## Create filters for countries 
     shiny::observe({
-        visVars <- visible_vars()
+        visVars <- input$vars
 
-        # Loop through visible variables
         for (var in visVars) {
             local({
                 local_var <- var  # Create local copy for proper scoping
@@ -107,7 +110,7 @@ server <- function(input, output, session) {
     })
 
     shiny::observe({
-        visVars <- visible_vars()
+        visVars <- input$vars
         for (var in visVars) {
             classVar <- metadataVars[[var]]$class
             lenVar <- metadataVars[[var]]$length
@@ -122,41 +125,43 @@ server <- function(input, output, session) {
         }
     })
     
-    ## Outputs in boxes ####
-    shiny::observe({
-        purrr::map(visible_vars(), ~ {
-            classVar <- metadataVars[[.x]]$class
-            lenVar <- metadataVars[[.x]]$length
-            if (classVar == "numeric" || classVar == "integer") {
-                outputName <- make.names(paste0(.x, "_plot"))
-                output[[outputName]] <- shiny::renderPlot({
-                    plotFun(filtered_data(), .x)
-                }, res = 80)
-            } else if (classVar == "character" && lenVar <= 7) {
-                outputName <- make.names(paste0(.x, "_plot"))
-                output[[outputName]] <- shiny::renderPlot({
-                    plotFun(filtered_data(), .x)
-                }, res = 80)
-            } else if (classVar == "character" && lenVar > 7) {
-                outputName <- make.names(paste0(.x, "_summary"))
-                output[[outputName]] <- shiny::renderUI({
-                    counts <- reactive_list$list[[.x]]
-                    summaryFun(.x, counts, reactive_values_2[[.x]])
-                })
-                return(NULL)
-            }
-        }) |>
-            purrr::discard(is.null)
-    })
-
     output$plots_tab <- shiny::renderUI({
         shiny::req(input$vars)
         shiny::fluidRow(
-            purrr::map(input$vars, ~ boxFun(.x, dat)) |>
+            input$vars |> 
+                purrr::map(\(.var) boxFun(.var, dat)) |>
                 purrr::discard(is.null)
         )
     })
     
+    shiny::observe({
+        shiny::req(input$vars)
+        res <- 150
+        input$vars |> 
+            purrr::map(\(.var) {
+                varLab <- metadataVars[[.var]]$label
+                if (varLab == "numeric") {
+                    outputName <- make.names(paste0(.var, "_plot"))
+                    output[[outputName]] <- shiny::renderPlot({
+                        plotFun(filtered_data(), .var)
+                    }, res = res)
+                } else if (varLab == "discrete_short") {
+                    outputName <- make.names(paste0(.var, "_plot"))
+                    output[[outputName]] <- shiny::renderPlot({
+                        plotFun(filtered_data(), .var)
+                    }, res = res)
+                } else if (varLab == "discrete_long") {
+                    outputName <- make.names(paste0(.var, "_summary"))
+                    output[[outputName]] <- shiny::renderUI({
+                        counts <- reactive_list$list[[.var]]
+                        summaryFun(.var, counts, reactive_values_2[[.var]])
+                    })
+                    return(NULL)
+                }
+            }) |>
+            purrr::discard(is.null)
+    })
+
     topBoxes(output, filtered_data)
     worldMap(output)
     fullTbl(input, output, filtered_data)
@@ -165,6 +170,7 @@ server <- function(input, output, session) {
 
 # Individual major output elements ----------------------------------------
 topBoxes <- function(output, filtered_data) {
+    ## TODO there could be some NA in filtered_data, especially in country. Double check.
     list(
         output$box_studies <- shinydashboard::renderValueBox({
             shinydashboard::valueBox(
@@ -214,7 +220,7 @@ worldMap <- function(output) {
             ) |>
             leaflet::setView(20, 40, zoom = 3)
     })
-} 
+}
 
 fullTbl <- function(input, output, filtered_data) {
     output$table_tab <- DT::renderDT({

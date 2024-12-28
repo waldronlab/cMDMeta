@@ -32,7 +32,7 @@ lenVar <- map_int(metadata, ~ length(unique(.x[!is.na(.x)])))
 metadataVars <- map2(classVar, lenVar, ~ {
     label <- dplyr::case_when(
         .x == "character" & .y <= 7 ~ "discrete_short",
-        .x == "character" & .y > 7 ~ "disctete_long",
+        .x == "character" & .y > 7 ~ "discrete_long",
         TRUE ~ "numeric"
     )
 
